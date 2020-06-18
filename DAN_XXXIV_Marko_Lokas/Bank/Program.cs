@@ -11,7 +11,7 @@ namespace Bank
     class Program
     {
         public static int TotalMoney = 10000;
-        public static int repeatLetter = 100;
+        public static int repeatLetter = 50;
         public static List<int> ListPeopleOfNumber = new List<int>();
         public static List<Thread> ListThreadATM1 = new List<Thread>();
         public static List<Thread> ListThreadATM2 = new List<Thread>();
@@ -19,13 +19,13 @@ namespace Bank
 
         static void Main(string[] args)
         {
-            CultureInfo current = CultureInfo.CurrentCulture;
-            CultureInfo newCulture;
-            newCulture = new CultureInfo("sr-SR");
-
             bool mainMenu = true;
             do
             {
+                if (TotalMoney != 10000)
+                {
+                    TotalMoney = 10000;
+                }
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Welcome to Bank App\n\n");
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -37,9 +37,7 @@ namespace Bank
                 switch (choseMainMenu)
                 {
                     case "1":
-                        //InsertNumberPeopleOfATM
                         bool correctInput = true;
-                        
 
                         for (int i = 1; i < 3; i++)
                         {
@@ -81,82 +79,89 @@ namespace Bank
                         }
                         Console.Clear();
                         int counter = 0;
-                        if(ListPeopleOfNumber.Count == 2)
+                        if (ListPeopleOfNumber.Count == 2)
                         {
                             foreach (var item in ListPeopleOfNumber)
                             {
                                 counter++;
-                                Console.WriteLine("People Number of ATM" + counter + ": " + item);
-                            }
-                        }
-                        CreateThreads1();
-                        CreateThreads2();
-                        int length = 0;
-                        if(ListThreadATM1.Count > ListThreadATM2.Count)
-                        {
-                            for (int j = 0; j < ListThreadATM1.Count; j++)
-                            {
-                                ListAllThread.Add(ListThreadATM1[j]);
-                                for (int k = j; k < ListThreadATM2.Count; k++)
+                                if (item == 0)
                                 {
-                                    
-                                        ListAllThread.Add(ListThreadATM2[k]);
-                                        break;
-                                    
-                                    
+                                    Console.Write("ATM" + counter + ": ");
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.Write("Not working.");
+                                    Console.ForegroundColor = ConsoleColor.Green;
+
                                 }
+                                else
+                                {
+                                    Console.WriteLine("People Number of ATM" + counter + ": " + item);
+                                }
+                                Console.Write("\n\n");
                             }
                         }
+
+                        //Unable to run script
+                        if (ListPeopleOfNumber[0] == 0 && ListPeopleOfNumber[1] == 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("ATMs is not working... Please try again");
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            ListPeopleOfNumber.Clear();
+                        }
+                        //when at least one ATM is operational
                         else
                         {
-                            for (int j = 0; j < ListThreadATM2.Count; j++)
+                            //create threads
+                            CreateThreads1();
+                            CreateThreads2();
+                            //Adding threads to one list
+                            if (ListThreadATM1.Count > ListThreadATM2.Count)
                             {
-                                ListAllThread.Add(ListThreadATM2[j]);
-                                for (int k = j; k < ListThreadATM1.Count; k++)
+                                for (int j = 0; j < ListThreadATM1.Count; j++)
                                 {
-                                        ListAllThread.Add(ListThreadATM1[k]);
-                                    break;
+                                    ListAllThread.Add(ListThreadATM1[j]);
+                                    for (int k = j; k < ListThreadATM2.Count; k++)
+                                    {
+
+                                        ListAllThread.Add(ListThreadATM2[k]);
+                                        break;
+                                    }
                                 }
                             }
+                            else
+                            {
+                                for (int j = 0; j < ListThreadATM2.Count; j++)
+                                {
+                                    ListAllThread.Add(ListThreadATM2[j]);
+                                    for (int k = j; k < ListThreadATM1.Count; k++)
+                                    {
+                                        ListAllThread.Add(ListThreadATM1[k]);
+                                        break;
+                                    }
+                                }
+                            }
+                            //Running threads
+                            foreach (var thread in ListAllThread)
+                            {
+                                thread.Start();
+                                thread.Join();
+                            }
+                            ListAllThread.LastOrDefault().Join();
+
+                            Console.WriteLine("Press any key, go to Main Menu...");
+                            Console.ReadKey();
+                            Console.Clear();
+
+                            //Delete the values in the lists, so that the script executes correctly again
+                            ListPeopleOfNumber.Clear();
+                            ListAllThread.Clear();
+                            ListThreadATM1.Clear();
+                            ListThreadATM2.Clear();
                         }
-
-                        //for (int i = 0; i < length; i++)
-                        //{
-
-                        //    try
-                        //    {
-
-
-                        //    }
-                        //    catch (Exception)
-                        //    {
-
-                        //    }
-                        //}
-
-                        foreach (var thread in ListAllThread)
-                        {
-                            //Console.WriteLine(threadATM1.Name);
-                            thread.Start();
-                        }
-                        ListAllThread.LastOrDefault().Join();
-
-                        //foreach (var threadATM1 in ListThreadATM1)
-                        //{
-                        //    Console.WriteLine(threadATM1.Name);
-                        //    threadATM1.Start();
-                        //}
-                        //foreach (var threadATM2 in ListThreadATM2)
-                        //{
-                        //    Console.WriteLine(threadATM2.Name);
-                        //    threadATM2.Start();
-                        //    threadATM2.Join();
-                        //}
-
-
 
                         break;
                     case "0":
+                        //Exit app
                         bool yesNo = true;
                         do
                         {
@@ -197,11 +202,13 @@ namespace Bank
         }
 
         private static readonly object locker = new object();
-
+        /// <summary>
+        /// Method with the help of which the number of threads is determined
+        /// </summary>
+        /// <param name="ATM">ATM Name</param>
+        /// <returns></returns>
         public static int NumberOfPeopleATM(string ATM)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            //Console.WriteLine("NOTICE: It is recommended to be up to 50 people,\ndue to the visibility of the application...");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Please enter the number of customers who can \naccess the ATM" + ATM);
             Console.ForegroundColor = ConsoleColor.Red;
@@ -216,7 +223,7 @@ namespace Bank
             int peopleNumberInt;
             bool peopleBool;
             peopleBool = int.TryParse(peopleNumber, out peopleNumberInt);
-            if(peopleNumberInt < 0 || !peopleBool)
+            if (peopleNumberInt < 0 || !peopleBool)
             {
                 return -1;
             }
@@ -229,7 +236,9 @@ namespace Bank
                 return peopleNumberInt;
             }
         }
-
+        /// <summary>
+        /// Creating threads for the first ATM
+        /// </summary>
         public static void CreateThreads1()
         {
             for (int i = 1; i <= ListPeopleOfNumber[0]; i++)
@@ -240,6 +249,9 @@ namespace Bank
             }
         }
 
+        /// <summary>
+        /// Logic for the first ATM
+        /// </summary>
         public static void ATM1()
         {
             lock (locker)
@@ -247,42 +259,46 @@ namespace Bank
                 Thread thread = Thread.CurrentThread;
                 string threadName = thread.Name;
 
-
                 string AtmName = threadName.Substring(0, 4);
-                //string PeopleName;
-                //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
                 Console.WriteLine(new string('=', repeatLetter));
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(new string(' ', 45) + AtmName);
-                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(new string(' ', 23) + AtmName);
                 Console.WriteLine(new string('-', repeatLetter));
+
+                //Current balance of money in the bank
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Total money in BANK: " + TotalMoney);
+                Console.WriteLine("Total money in BANK: " + TotalMoney + ".oo RSD");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(new string('-', repeatLetter));
+
                 Thread.Sleep(RandomNumberSleep());
+                //amount to be paid
                 int money = RandomNumber();
-                if (TotalMoney > money)
+                if (TotalMoney >= money)
                 {
-                    Console.WriteLine(AtmName);
+                    //Message: when there is enough money in the bank
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"Client number \"{threadName}\" withdrew money from an ATM \"{AtmName}\" in the amount of { money }.oo  RSD.");
+                    Console.WriteLine($"Client number: \"{threadName}\" \nAction: withdrew money \nATM: \"{AtmName}\" \nAmount: { money }.oo RSD.");
                     Console.WriteLine(new string('-', repeatLetter));
                     TotalMoney = TotalMoney - money;
+                    Console.WriteLine("Total money in BANK: " + TotalMoney + ".oo RSD");
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 else
                 {
+                    //Message: when there is not enough money in the bank
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Unfortunately, there is not enough money to pay.");
-                    Console.WriteLine($"It is not possible to pay {money}.oo RSD to the client with card number {threadName}.");
-
+                    Console.WriteLine("Unfortunately, there is not enough money to pay.\n");
+                    Console.WriteLine($"Client number: \"{threadName}\" \nAction: withdrew money \nATM: \"{AtmName}\" \nAmount: { money }.oo RSD.");
+                    Console.WriteLine("\nTransaction stopped.");
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 Console.WriteLine(new string('=', repeatLetter));
             }
         }
 
+        /// <summary>
+        /// Creating threads for the second ATM
+        /// </summary>
         public static void CreateThreads2()
         {
             for (int i = 1; i <= ListPeopleOfNumber[1]; i++)
@@ -293,6 +309,9 @@ namespace Bank
             }
         }
 
+        /// <summary>
+        /// Logic for the second ATM
+        /// </summary>
         public static void ATM2()
         {
             lock (locker)
@@ -300,49 +319,64 @@ namespace Bank
                 Thread thread = Thread.CurrentThread;
                 string threadName = thread.Name;
 
-
                 string AtmName = threadName.Substring(0, 4);
-                //string PeopleName;
-                //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
-                
-                Console.WriteLine(new string('=', repeatLetter));
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine(new string(' ', 45) + AtmName);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(new string('-', repeatLetter));
+                int spaceNumber = 50;
+                Console.WriteLine(new string(' ', spaceNumber) + new string('=', repeatLetter));
+                Console.WriteLine(new string(' ', spaceNumber) + new string(' ', 23) + AtmName);
+                Console.WriteLine(new string(' ', spaceNumber) + new string('-', repeatLetter));
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Total money in BANK: " + TotalMoney);
+
+                //Current balance of money in the bank
+                Console.WriteLine(new string(' ', spaceNumber) + "Total money in BANK: " + TotalMoney + ".oo RSD");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(new string('-', repeatLetter));
+                Console.WriteLine(new string(' ', spaceNumber) + new string('-', repeatLetter));
                 Thread.Sleep(RandomNumberSleep());
+                //amount to be paid
                 int money = RandomNumber();
-                if (TotalMoney > money)
+                if (TotalMoney >= money)
                 {
-                    Console.WriteLine(AtmName);
+                    //Message: when there is enough money in the bank
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"Client number \"{threadName}\" withdrew money from an ATM \"{AtmName}\" in the amount of { money }.oo  RSD.");
-                    Console.WriteLine(new string('-', repeatLetter));
+                    Console.WriteLine(new string(' ', spaceNumber) + $"Client number: \"{threadName}\" \n" + new string(' ', spaceNumber) +
+                                    $"Action: withdrew money \n" + new string(' ', spaceNumber) +
+                                    $"ATM: \"{AtmName}\" \n" + new string(' ', spaceNumber) +
+                                    $"Amount: { money }.oo  RSD.");
+                    Console.WriteLine(new string(' ', spaceNumber) + new string('-', repeatLetter));
                     TotalMoney = TotalMoney - money;
+                    Console.WriteLine(new string(' ', spaceNumber) + "Total money in BANK: " + TotalMoney + ".oo RSD");
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 else
                 {
+                    //Message: when there is not enough money in the bank
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Unfortunately, there is not enough money to pay.");
-                    Console.WriteLine($"It is not possible to pay {money}.oo RSD to the client with card number {threadName}.");
-
+                    Console.WriteLine(new string(' ', spaceNumber) + "Unfortunately, there is not enough money to pay.\n");
+                    Console.WriteLine(new string(' ', spaceNumber) + $"Client number: \"{threadName}\" \n" + new string(' ', spaceNumber) +
+                                    $"Action: withdrew money \n" + new string(' ', spaceNumber) +
+                                    $"ATM: \"{AtmName}\" \n" + new string(' ', spaceNumber) +
+                                    $"Amount: { money }.oo  RSD.");
+                    Console.WriteLine("\n" + new string(' ', spaceNumber) + "Transaction stopped.");
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
-                Console.WriteLine(new string('=', repeatLetter) + "\n");
+                Console.WriteLine(new string(' ', spaceNumber) + new string('=', repeatLetter) + "\n");
             }
         }
 
+        /// <summary>
+        /// Random payout generation
+        /// </summary>
+        /// <returns></returns>
         static int RandomNumber()
         {
             Random random = new Random();
             return random.Next(100, 10001);
         }
 
+        /// <summary>
+        /// A method that determines how many threads will sleep, 
+        /// to RandomNumber() generate different numbers
+        /// </summary>
+        /// <returns></returns>
         static int RandomNumberSleep()
         {
             Random random = new Random();
