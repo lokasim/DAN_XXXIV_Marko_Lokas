@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -9,12 +10,18 @@ namespace Bank
 {
     class Program
     {
+        public static int TotalMoney = 10000;
+        public static int repeatLetter = 100;
         public static List<int> ListPeopleOfNumber = new List<int>();
         public static List<Thread> ListThreadATM1 = new List<Thread>();
         public static List<Thread> ListThreadATM2 = new List<Thread>();
         
         static void Main(string[] args)
         {
+            CultureInfo current = CultureInfo.CurrentCulture;
+            CultureInfo newCulture;
+            newCulture = new CultureInfo("sr-SR");
+
             bool mainMenu = true;
             do
             {
@@ -91,6 +98,7 @@ namespace Bank
                         foreach (var threadATM2 in ListThreadATM2)
                         {
                             threadATM2.Start();
+                            threadATM2.Join();
                         }
 
 
@@ -136,7 +144,8 @@ namespace Bank
             } while (mainMenu);
         }
 
-        
+        private static readonly object locker = new object();
+
         public static int NumberOfPeopleATM(string ATM)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -181,7 +190,44 @@ namespace Bank
 
         public static void ATM1()
         {
-            Console.WriteLine("ATM11111");
+            lock (locker)
+            {
+                Thread thread = Thread.CurrentThread;
+            string threadName = thread.Name;
+
+
+            string AtmName = threadName.Substring(0, 4);
+            //string PeopleName;
+            //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
+            Console.WriteLine(new string('=', repeatLetter));
+            Console.WriteLine(AtmName);
+            
+                Console.WriteLine(new string('-', repeatLetter));
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Total money in BANK: " + TotalMoney);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(new string('-', repeatLetter));
+                Thread.Sleep(RandomNumberSleep());
+                int money = RandomNumber();
+                if (TotalMoney > money)
+                {
+                    Console.WriteLine(AtmName);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Client number \"{threadName}\" withdrew money from an ATM \"{AtmName}\" in the amount of { money }.oo  RSD.");
+                    Console.WriteLine(new string('-', repeatLetter));
+                    TotalMoney = TotalMoney - money;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Unfortunately, there is not enough money to pay.");
+                    Console.WriteLine($"It is not possible to pay {money}.oo RSD to the client with card number {threadName}.");
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                Console.WriteLine(new string('=', repeatLetter));
+            }
         }
 
         public static void CreateThreads2()
@@ -196,7 +242,56 @@ namespace Bank
 
         public static void ATM2()
         {
-            Console.WriteLine("\tATM2222");
+            lock (locker)
+            {
+                Thread thread = Thread.CurrentThread;
+            string threadName = thread.Name;
+            
+            
+            string AtmName = threadName.Substring(0, 4);
+            //string PeopleName;
+            //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
+            Console.WriteLine(new string('=', repeatLetter));
+            Console.WriteLine(AtmName);
+            
+                Console.WriteLine(new string('-', repeatLetter));
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Total money in BANK: " + TotalMoney);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(new string('-', repeatLetter));
+                Thread.Sleep(RandomNumberSleep());
+                int money = RandomNumber();
+                if (TotalMoney > money)
+                {
+                    Console.WriteLine(AtmName);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Client number \"{threadName}\" withdrew money from an ATM \"{AtmName}\" in the amount of { money }.oo  RSD.");
+                    Console.WriteLine(new string('-', repeatLetter));
+                    TotalMoney = TotalMoney - money;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Unfortunately, there is not enough money to pay.");
+                    Console.WriteLine($"It is not possible to pay {money}.oo RSD to the client with card number {threadName}.");
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                Console.WriteLine(new string('=', repeatLetter));
+            }
+        }
+
+        static int RandomNumber()
+        {
+            Random random = new Random();
+            return random.Next(100, 10001);
+        }
+
+        static int RandomNumberSleep()
+        {
+            Random random = new Random();
+            return random.Next(0, 100);
         }
     }
 }
