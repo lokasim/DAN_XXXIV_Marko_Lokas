@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bank
 {
     class Program
     {
+        public static List<int> ListPeopleOfNumber = new List<int>();
+        public static List<Thread> ListThreadATM1 = new List<Thread>();
+        public static List<Thread> ListThreadATM2 = new List<Thread>();
+        
         static void Main(string[] args)
         {
             bool mainMenu = true;
@@ -24,15 +29,14 @@ namespace Bank
                 switch (choseMainMenu)
                 {
                     case "1":
-                        //InsertNumberPeopleOfATM1
+                        //InsertNumberPeopleOfATM
                         bool correctInput = true;
-                        List<int> peopleOfNumber = new List<int>();
+                        
 
                         for (int i = 1; i < 3; i++)
                         {
                             do
                             {
-                                //Console.Clear();
                                 int ATM = NumberOfPeopleATM(i.ToString());
                                 if (ATM == -2)
                                 {
@@ -62,24 +66,33 @@ namespace Bank
                                     else
                                     {
                                         correctInput = false;
-                                        peopleOfNumber.Add(ATM);
+                                        ListPeopleOfNumber.Add(ATM);
                                     }
                                 }
                             } while (correctInput);
                         }
                         Console.Clear();
                         int counter = 0;
-                        if(peopleOfNumber.Count == 2)
+                        if(ListPeopleOfNumber.Count == 2)
                         {
-                            foreach (var item in peopleOfNumber)
+                            foreach (var item in ListPeopleOfNumber)
                             {
                                 counter++;
                                 Console.WriteLine("People Number of ATM" + counter + ": " + item);
                             }
                         }
-                        
+                        CreateThreads1();
+                        CreateThreads2();
 
-                        //InsertNumberPeopleOfATM2
+                        foreach (var threadATM1 in ListThreadATM1)
+                        {
+                            threadATM1.Start();
+                        }
+                        foreach (var threadATM2 in ListThreadATM2)
+                        {
+                            threadATM2.Start();
+                        }
+
 
 
                         break;
@@ -123,9 +136,9 @@ namespace Bank
             } while (mainMenu);
         }
 
+        
         public static int NumberOfPeopleATM(string ATM)
         {
-            //Console.Clear();
             Console.ForegroundColor = ConsoleColor.White;
             //Console.WriteLine("NOTICE: It is recommended to be up to 50 people,\ndue to the visibility of the application...");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -154,6 +167,36 @@ namespace Bank
                 Console.ForegroundColor = ConsoleColor.Green;
                 return peopleNumberInt;
             }
+        }
+
+        public static void CreateThreads1()
+        {
+            for (int i = 1; i <= ListPeopleOfNumber[0]; i++)
+            {
+                ListThreadATM1.Add(new Thread(new ThreadStart(ATM1)));
+                string nameThread = "ATM1-";
+                ListThreadATM1.LastOrDefault().Name = string.Format(nameThread + i);
+            }
+        }
+
+        public static void ATM1()
+        {
+            Console.WriteLine("ATM11111");
+        }
+
+        public static void CreateThreads2()
+        {
+            for (int i = 1; i <= ListPeopleOfNumber[1]; i++)
+            {
+                ListThreadATM2.Add(new Thread(new ThreadStart(ATM2)));
+                string nameThread = "ATM2-";
+                ListThreadATM2.LastOrDefault().Name = string.Format(nameThread + i);
+            }
+        }
+
+        public static void ATM2()
+        {
+            Console.WriteLine("\tATM2222");
         }
     }
 }
