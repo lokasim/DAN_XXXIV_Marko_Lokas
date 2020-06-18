@@ -15,7 +15,8 @@ namespace Bank
         public static List<int> ListPeopleOfNumber = new List<int>();
         public static List<Thread> ListThreadATM1 = new List<Thread>();
         public static List<Thread> ListThreadATM2 = new List<Thread>();
-        
+        public static List<Thread> ListAllThread = new List<Thread>();
+
         static void Main(string[] args)
         {
             CultureInfo current = CultureInfo.CurrentCulture;
@@ -90,16 +91,67 @@ namespace Bank
                         }
                         CreateThreads1();
                         CreateThreads2();
+                        int length = 0;
+                        if(ListThreadATM1.Count > ListThreadATM2.Count)
+                        {
+                            for (int j = 0; j < ListThreadATM1.Count; j++)
+                            {
+                                ListAllThread.Add(ListThreadATM1[j]);
+                                for (int k = j; k < ListThreadATM2.Count; k++)
+                                {
+                                    
+                                        ListAllThread.Add(ListThreadATM2[k]);
+                                        break;
+                                    
+                                    
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int j = 0; j < ListThreadATM2.Count; j++)
+                            {
+                                ListAllThread.Add(ListThreadATM2[j]);
+                                for (int k = j; k < ListThreadATM1.Count; k++)
+                                {
+                                        ListAllThread.Add(ListThreadATM1[k]);
+                                    break;
+                                }
+                            }
+                        }
 
-                        foreach (var threadATM1 in ListThreadATM1)
+                        //for (int i = 0; i < length; i++)
+                        //{
+
+                        //    try
+                        //    {
+
+
+                        //    }
+                        //    catch (Exception)
+                        //    {
+
+                        //    }
+                        //}
+
+                        foreach (var thread in ListAllThread)
                         {
-                            threadATM1.Start();
+                            //Console.WriteLine(threadATM1.Name);
+                            thread.Start();
                         }
-                        foreach (var threadATM2 in ListThreadATM2)
-                        {
-                            threadATM2.Start();
-                            threadATM2.Join();
-                        }
+                        ListAllThread.LastOrDefault().Join();
+
+                        //foreach (var threadATM1 in ListThreadATM1)
+                        //{
+                        //    Console.WriteLine(threadATM1.Name);
+                        //    threadATM1.Start();
+                        //}
+                        //foreach (var threadATM2 in ListThreadATM2)
+                        //{
+                        //    Console.WriteLine(threadATM2.Name);
+                        //    threadATM2.Start();
+                        //    threadATM2.Join();
+                        //}
 
 
 
@@ -193,15 +245,16 @@ namespace Bank
             lock (locker)
             {
                 Thread thread = Thread.CurrentThread;
-            string threadName = thread.Name;
+                string threadName = thread.Name;
 
 
-            string AtmName = threadName.Substring(0, 4);
-            //string PeopleName;
-            //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
-            Console.WriteLine(new string('=', repeatLetter));
-            Console.WriteLine(AtmName);
-            
+                string AtmName = threadName.Substring(0, 4);
+                //string PeopleName;
+                //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
+                Console.WriteLine(new string('=', repeatLetter));
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(new string(' ', 45) + AtmName);
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(new string('-', repeatLetter));
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Total money in BANK: " + TotalMoney);
@@ -245,15 +298,17 @@ namespace Bank
             lock (locker)
             {
                 Thread thread = Thread.CurrentThread;
-            string threadName = thread.Name;
-            
-            
-            string AtmName = threadName.Substring(0, 4);
-            //string PeopleName;
-            //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
-            Console.WriteLine(new string('=', repeatLetter));
-            Console.WriteLine(AtmName);
-            
+                string threadName = thread.Name;
+
+
+                string AtmName = threadName.Substring(0, 4);
+                //string PeopleName;
+                //Console.WriteLine(threadName.PadLeft(30, '=') + new string('=', 30));
+                
+                Console.WriteLine(new string('=', repeatLetter));
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine(new string(' ', 45) + AtmName);
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(new string('-', repeatLetter));
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Total money in BANK: " + TotalMoney);
@@ -278,7 +333,7 @@ namespace Bank
 
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
-                Console.WriteLine(new string('=', repeatLetter));
+                Console.WriteLine(new string('=', repeatLetter) + "\n");
             }
         }
 
